@@ -86,7 +86,7 @@ for siteKey in siteKeys:
     
 data = Data(flowList)
 riverName = damName = location[siteKey].split('AT')[0].rstrip()
-unique_url = py.plot(data, filename = riverName)
+unique_url = py.plot(data, filename = riverName, auto_open=False, overwrite=True)
 
 
 
