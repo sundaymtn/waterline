@@ -8,10 +8,6 @@ import plotly.plotly as py
 from plotly.graph_objs import Data, Scatter 
 import process
 
-serverStart = process.ProcessClass(exec_list=([r'redis-server', './redis.conf'],), out=True, limit_response=0, errors_expected=False,
-                           return_proc=True, use_call=False, use_shell=False, environ=None)
-print "Starting Redis"
-serverStart.execute()
 
 checkoutDatabase = process.ProcessClass(exec_list=([r'git remote set-url origin https://username:669288a22a7ba23a44fc088f9442deb5b299a03e@github.com/sundaymtn/waterline.git'],
                                                    [r'git fetch'],
@@ -21,6 +17,10 @@ ret = checkoutDatabase.execute()
 for r in ret:
     print r
 
+serverStart = process.ProcessClass(exec_list=([r'redis-server', './redis.conf'],), out=True, limit_response=0, errors_expected=False,
+                           return_proc=True, use_call=False, use_shell=False, environ=None)
+print "Starting Redis"
+serverStart.execute()
 
 r = redis.StrictRedis(host = 'localhost', port = 6379, db = 0)
 def set_value(redis, key, value):
