@@ -14,7 +14,8 @@ print "Starting Redis"
 serverStart.execute()
 
 checkoutDatabase = process.ProcessClass(exec_list=([r'git remote set-url origin https://username:669288a22a7ba23a44fc088f9442deb5b299a03e@github.com/sundaymtn/waterline.git'],
-                                               [r'git checkout database']), out=True, limit_response=0, errors_expected=False,
+                                                   [r'git fetch'],
+                                                   [r'git checkout database']), out=True, limit_response=0, errors_expected=False,
                            return_proc=False, use_call=False, use_shell=True, environ=None)
 ret = checkoutDatabase.execute()
 for r in ret:
