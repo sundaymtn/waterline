@@ -7,12 +7,20 @@ import pickle
 import plotly.plotly as py
 from plotly.graph_objs import Data, Scatter 
 import process
-import time
 
 serverStart = process.ProcessClass(exec_list=([r'redis-server', './redis.conf'],), out=True, limit_response=0, errors_expected=False,
                            return_proc=True, use_call=False, use_shell=False, environ=None)
-serverStart.execute()
 print "Starting Redis"
+serverStart.execute()
+
+checkoutDatabase = process.ProcessClass(exec_list=([r'git remote set-url origin https://username:669288a22a7ba23a44fc088f9442deb5b299a03e@github.com/sundaymtn/waterline.git'],
+                                               [r'git checkout database']), out=True, limit_response=0, errors_expected=False,
+                           return_proc=False, use_call=False, use_shell=True, environ=None)
+ret = checkoutDatabase.execute()
+for r in ret:
+    print r
+
+
 r = redis.StrictRedis(host = 'localhost', port = 6379, db = 0)
 def set_value(redis, key, value):
     redis.set(key, pickle.dumps(value))
@@ -99,10 +107,10 @@ serverStop = process.ProcessClass(exec_list=([r'redis-cli', 'shutdown'],), out=T
 serverStart.execute()
 print "Stopping Redis"
 
-time.sleep(30)
 
 addUpdatedDb = process.ProcessClass(exec_list=([r'git remote set-url origin https://username:669288a22a7ba23a44fc088f9442deb5b299a03e@github.com/sundaymtn/waterline.git'],
                                                [r'git status'],
+                                               [r'git checkout database'],
                                                [r'git add waterline.rdb'],
                                                [r'git commit -m "updated waterline data"'],
                                                [r'git push']), out=True, limit_response=0, errors_expected=False,
