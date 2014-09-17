@@ -6,9 +6,14 @@ import datetime
 import pickle
 import plotly.plotly as py
 from plotly.graph_objs import Data, Scatter 
+import process
+import sys
 
+gen = process.ProcessClass(exec_list=([r'redis-server', './redis.conf'],), out=True, limit_response=0, errors_expected=False,
+                           return_proc=True, use_call=False, use_shell=False, environ=None)
+ret = gen.execute()
+print ret
 r = redis.StrictRedis(host = 'localhost', port = 6379, db = 0)
-
 def set_value(redis, key, value):
     redis.set(key, pickle.dumps(value))
 
@@ -88,7 +93,9 @@ data = Data(flowList)
 riverName = damName = location[siteKey].split('AT')[0].rstrip()
 unique_url = py.plot(data, filename = riverName, auto_open=False, overwrite=True)
 
-
+gen = process.ProcessClass(exec_list=([r'redis-cli', 'shutdown'],), out=True, limit_response=0, errors_expected=False,
+                           return_proc=False, use_call=False, use_shell=False, environ=None)
+gen.execute()
 
 
 
