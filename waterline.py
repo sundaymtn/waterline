@@ -7,6 +7,7 @@ import pickle
 import plotly.plotly as py
 from plotly.graph_objs import Data, Scatter 
 import process
+import time
 
 serverStart = process.ProcessClass(exec_list=([r'redis-server', './redis.conf'],), out=True, limit_response=0, errors_expected=False,
                            return_proc=True, use_call=False, use_shell=False, environ=None)
@@ -97,11 +98,13 @@ serverStop = process.ProcessClass(exec_list=([r'redis-cli', 'shutdown'],), out=T
 serverStart.execute()
 print "Stopping Redis"
 
+time.sleep(15)
+
 addUpdatedDb = process.ProcessClass(exec_list=([r'git status'],[r'git add waterline.rdb'],[r'git commit -m "updated waterline data"'],['git push']), out=True, limit_response=0, errors_expected=False,
                            return_proc=False, use_call=False, use_shell=True, environ=None)
 ret = addUpdatedDb.execute()
+print 'Pushing updated redis db to remote'
 for line in ret:
-    print 'Pushing updated redis db to remote'
     print '\t'+line
 
 
