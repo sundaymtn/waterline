@@ -91,6 +91,7 @@ for siteKey in siteKeys:
     
 data = Data(flowList)
 riverName = damName = location[siteKey].split('AT')[0].rstrip()
+py.sign_in('sundaymtn','kfw4lbn1wt')
 unique_url = py.plot(data, filename = riverName, auto_open=False, overwrite=True)
 
 serverStop = process.ProcessClass(exec_list=([r'redis-cli', 'shutdown'],), out=True, limit_response=0, errors_expected=False,
@@ -98,7 +99,7 @@ serverStop = process.ProcessClass(exec_list=([r'redis-cli', 'shutdown'],), out=T
 serverStart.execute()
 print "Stopping Redis"
 
-time.sleep(15)
+time.sleep(30)
 
 addUpdatedDb = process.ProcessClass(exec_list=([r'git status'],[r'git add waterline.rdb'],[r'git commit -m "updated waterline data"'],['git push']), out=True, limit_response=0, errors_expected=False,
                            return_proc=False, use_call=False, use_shell=True, environ=None)
