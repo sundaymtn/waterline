@@ -105,7 +105,7 @@ addUpdatedDb = process.ProcessClass(exec_list=([r'git remote set-url origin http
                                                [r'git status'],
                                                [r'git add waterline.rdb'],
                                                [r'git commit -m "updated waterline data"'],
-                                               [r'git push']), out=True, limit_response=0, errors_expected=False,
+                                               [r'git push -u origin master']), out=True, limit_response=0, errors_expected=False,
                            return_proc=False, use_call=False, use_shell=True, environ=None)
 ret = addUpdatedDb.execute()
 print 'Pushing updated redis db to remote'
