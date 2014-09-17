@@ -10,3 +10,7 @@ install:
 
 script:
         - python waterline.py
+
+branches:
+        only:
+        - master
