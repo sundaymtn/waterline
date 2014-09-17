@@ -9,14 +9,6 @@ from plotly.graph_objs import Data, Scatter
 import process
 
 
-checkoutDatabase = process.ProcessClass(exec_list=([r'git remote set-url origin https://username:669288a22a7ba23a44fc088f9442deb5b299a03e@github.com/sundaymtn/waterline.git'],
-                                                   [r'git fetch'],
-                                                   [r'git checkout database']), out=True, limit_response=0, errors_expected=False,
-                           return_proc=False, use_call=False, use_shell=True, environ=None)
-ret = checkoutDatabase.execute()
-for r in ret:
-    print r
-
 serverStart = process.ProcessClass(exec_list=([r'redis-server', './redis.conf'],), out=True, limit_response=0, errors_expected=False,
                            return_proc=True, use_call=False, use_shell=False, environ=None)
 print "Starting Redis"
@@ -109,7 +101,8 @@ serverStart.execute()
 print "Stopping Redis"
 
 
-addUpdatedDb = process.ProcessClass(exec_list=([r'git status'],
+addUpdatedDb = process.ProcessClass(exec_list=([r'git remote set-url origin https://username:669288a22a7ba23a44fc088f9442deb5b299a03e@github.com/sundaymtn/waterline.git'],
+                                               [r'git status'],
                                                [r'git add waterline.rdb'],
                                                [r'git commit -m "updated waterline data"'],
                                                [r'git push -u origin database']), out=True, limit_response=0, errors_expected=False,
