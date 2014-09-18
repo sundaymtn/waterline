@@ -109,7 +109,7 @@ addUpdatedDb = process.ProcessClass(exec_list=([r'git remote set-url origin http
                                                [r'git checkout master'],
                                                [r'git branch --set-upstream master origin/master'],
                                                [r'git add waterline.rdb'],
-                                               [r'git commit -m "updated waterline data"'],
+                                               [r'git commit -m "[skip ci] updated waterline data"'],
                                                [r'git push']), out=True, limit_response=0, errors_expected=False,
                            return_proc=False, use_call=False, use_shell=True, environ=None)
 time.sleep(1800)
