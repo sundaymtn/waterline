@@ -3,6 +3,7 @@ import urllib2
 import redis
 import re
 import datetime
+import time
 import pickle
 import plotly.plotly as py
 from plotly.graph_objs import Data, Scatter 
@@ -111,8 +112,9 @@ addUpdatedDb = process.ProcessClass(exec_list=([r'git remote set-url origin http
                                                [r'git commit -m "updated waterline data"'],
                                                [r'git push']), out=True, limit_response=0, errors_expected=False,
                            return_proc=False, use_call=False, use_shell=True, environ=None)
-ret = addUpdatedDb.execute()
+time.sleep(1800)
 print 'Pushing updated redis db to remote'
+ret = addUpdatedDb.execute()
 for line in ret:
     print '\t'+line
 
