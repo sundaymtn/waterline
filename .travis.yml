@@ -11,7 +11,7 @@ install:
         - pip install simplejson
         
 before_script:
-        - before_script
+        - ${TRAVIS_BUILD_DIR}/before_script
 
 script:
         - python waterline.py
