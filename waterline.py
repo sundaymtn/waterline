@@ -150,7 +150,7 @@ for siteKey in siteKeys:
     dedupe = {}
     dels = []
     for x in xrange(len(xExpectedDate)):
-        print xExpectedDate[x],yExpectedFlow[x]
+        # print xExpectedDate[x],yExpectedFlow[x]
         if dedupe.has_key(str(xExpectedDate[x])+' '+str(yExpectedFlow[x])):
             dels.append(x)
         else:
