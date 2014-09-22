@@ -10,10 +10,10 @@ from plotly.graph_objs import Data, Scatter
 import process
 import sys
 
-poll = True
-log = False
+poll = False
+log = True
 plot = True
-push = True
+push = False
 
 serverStart = process.ProcessClass(exec_list=([r'redis-server', './redis.conf'],), out=True, limit_response=0, errors_expected=False,
                            return_proc=True, use_call=False, use_shell=False, environ=None)
@@ -31,7 +31,7 @@ def get_value(redis, key):
     return pickle.loads(pickled_value)
 
 
-siteKeys = ['335124', '335125', '335126']
+siteKeys = ['335124','335125','335126',]
 location = {}
 
 
@@ -77,6 +77,33 @@ for siteKey in siteKeys:
                 cfs[flowDate] = [flow,]
     set_value(r, siteKey + '-cfs', cfs)
     r.save()
+    
+    
+def parseFlow(flowData):
+    flowMatches = [#'Until (?:(\d{1,2}:\d{1,2} (?:AM|PM)|MIDNIGHT)) (today|tomorrow). (\d\,\d{1,6}|\d{1,6})',
+                   'At (?:(\d{1,2}:\d{1,2} (?:AM|PM)|MIDNIGHT)) (today|tomorrow) the total flow below the dam was (\d\,\d{1,6}|\d{1,6})',
+                   'From (?:(\d{1,2}:\d{1,2} (?:AM|PM)|MIDNIGHT)) (today|tomorrow) until (?:(\d{1,2}:\d{1,2} (?:AM|PM)|MIDNIGHT)) (\d\,\d{1,6}|\d{1,6})',
+                   'From (?:(\d{1,2}:\d{1,2} (?:AM|PM)|MIDNIGHT)) (today|tomorrow) until (?:(\d{1,2}:\d{1,2} (?:AM|PM)|MIDNIGHT)) (?:(today|tomorrow).*) (\d\,\d{1,6}|\d{1,6})']
+    for f in flowMatches:
+        m = re.match(f,flowData)
+        if m:
+            # print m.groups()
+            return m.groups()
+
+def convertTimes(flowDate, fDList):
+    fdList = ['11:59 PM' if f=='MIDNIGHT' else f for f in fDList]
+    # print fdList
+    fdList = [datetime.datetime.strptime(f, "%I:%M %p") if ':' in f else f for f in fdList]
+    for x in xrange(len(fdList)):
+        if type(fdList[x]) == datetime.datetime:
+            if fdList[x+1]=='tomorrow':
+                fdList[x] = fdList[x].replace(year=flowDate.year, month=flowDate.month, day=flowDate.day+1)
+            else:
+                fdList[x] = fdList[x].replace(year=flowDate.year, month=flowDate.month, day=flowDate.day)
+    fdList = [f for f in fdList if f not in ('today','tomorrow')]
+    print '\t '+str(fdList)
+    return fdList
+
 
 flowList = []
 for siteKey in siteKeys:
@@ -95,55 +122,23 @@ for siteKey in siteKeys:
         flowDate = sortedDates[datePoint]
         flowData = histFlow[flowDate]
         if log:
-            print '\t'+flowDate.strftime('%b %d %Y %H:%M:%S')
-        xActualDate.append(flowDate)
+            print '\n\t'+flowDate.strftime('%b %d %Y %H:%M:%S')
+        
         for fD in flowData:
             tomorrow = False
+            fDList = parseFlow(fD)
             if log:
                 print '\t  ' + fD
-            if fD.startswith('At'):
-                yActualFlow.append(fD.split(' ')[-1])
-            if fD.startswith('From'):
-                lineItemFrom = fD.split(' ')
-                if datePoint+1 == datePoints:
-                    yExpectedFlow.append(lineItemFrom[-1])
-                
-                if lineItemFrom[1] == 'MIDNIGHT':
-                    lineItemFrom[1] = '23:59'
-                    
-                fromTime = [int(x) for x in lineItemFrom[1].split(':')]
-                
-                if lineItemFrom[2] == 'PM':
-                    fromTime[0] = fromTime[0]+12
-                if datePoint+1 == datePoints:
-                    xExpectedDate.append(flowDate.replace(hour=fromTime[0],minute=fromTime[1]))
-                
-                
-                if 'today' in fD:
-                    fD = fD.split('today ')[1]
-                if 'tomorrow' in fD:
-                    try:
-                        fD = fD.split('tomorrow ')[1]
-                    except:
-                        fD = fD.split('tomorrow, ')[1]
-                    tomorrow = True
-            if fD.startswith(('Until','until')):
-                lineItemUntil = fD.split(' ')
-                yExpectedFlow.append(lineItemUntil[-1])
-                
-                if lineItemUntil[1] == 'MIDNIGHT':
-                    lineItemUntil[1] = '23:59'
-                    
-                untilTime = [int(x) for x in lineItemUntil[1].split(':')]
-                
-                if lineItemUntil[2] == 'PM':
-                    untilTime[0] = untilTime[0]+12
-                if tomorrow:
-                    flowDateUntil = flowDate + datetime.timedelta(days=1)
+            if fDList:
+                datesAndFlows = convertTimes(flowDate, fDList)
+                if len(datesAndFlows) == 2:
+                    yActualFlow.append(datesAndFlows[-1])
+                    xActualDate.append(datesAndFlows[0])
                 else:
-                    flowDateUntil = flowDate
-                xExpectedDate.append(flowDateUntil.replace(hour=untilTime[0],minute=untilTime[1]))
-                
+                    for dF in datesAndFlows[0:-1]:
+                        yExpectedFlow.append(datesAndFlows[-1])
+                        xExpectedDate.append(dF)
+    
     flowList += [Scatter(name = damName+'-expected' ,x = xExpectedDate, y = yExpectedFlow, fill ="none", line={"dash":"dot"})]
                 
     flowList += [Scatter(name = damName ,x = xActualDate, y = yActualFlow, fill ="tozeroy")]
@@ -153,7 +148,7 @@ riverName = damName = location[siteKey].split('AT')[0].rstrip()
 
 if plot:
     py.sign_in('sundaymtn','kfw4lbn1wt')
-    unique_url = py.plot(data, filename = riverName, auto_open=False, overwrite=True)
+    unique_url = py.plot(data, filename = riverName+'-test', auto_open=False, overwrite=True)
 
 serverStop = process.ProcessClass(exec_list=([r'redis-cli', 'shutdown'],), out=True, limit_response=0, errors_expected=False,
                            return_proc=False, use_call=False, use_shell=False, environ=None)
