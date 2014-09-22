@@ -148,7 +148,7 @@ riverName = damName = location[siteKey].split('AT')[0].rstrip()
 
 if plot:
     py.sign_in('sundaymtn','kfw4lbn1wt')
-    unique_url = py.plot(data, filename = riverName+'-test', auto_open=False, overwrite=True)
+    unique_url = py.plot(data, filename = riverName, auto_open=False, overwrite=True)
 
 serverStop = process.ProcessClass(exec_list=([r'redis-cli', 'shutdown'],), out=True, limit_response=0, errors_expected=False,
                            return_proc=False, use_call=False, use_shell=False, environ=None)
