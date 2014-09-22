@@ -10,10 +10,10 @@ from plotly.graph_objs import Data, Scatter
 import process
 import sys
 
-poll = False
+poll = True
 log = True
 plot = True
-push = False
+push = True
 
 serverStart = process.ProcessClass(exec_list=([r'redis-server', './redis.conf'],), out=True, limit_response=0, errors_expected=False,
                            return_proc=True, use_call=False, use_shell=False, environ=None)
@@ -147,9 +147,9 @@ for siteKey in siteKeys:
         except IndexError:
             continue
         
-    flowList += [Scatter(name = damName+'-expected' ,x = xExpectedDate, y = yExpectedFlow, fill ="none", line={"dash":"dot"})]
                 
     flowList += [Scatter(name = damName ,x = xActualDate, y = yActualFlow, fill ="tozeroy")]
+    flowList += [Scatter(name = damName+'-expected' ,x = xExpectedDate, y = yExpectedFlow, fill ="none", line={"dash":"dot"})]
     
 data = Data(flowList)
 riverName = damName = location[siteKey].split('AT')[0].rstrip()
