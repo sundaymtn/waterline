@@ -13,9 +13,9 @@ import sys
 poll = True
 log = True
 plot = True
-push = False
+push = True
 
-serverStart = process.ProcessClass(exec_list=([r'redis-server', './redis.conf'],), out=True, limit_response=0, errors_expected=False,
+serverStart = process.ProcessClass(exec_list=([r'redis-server', 'redis.conf'],), out=True, limit_response=0, errors_expected=False,
                           return_proc=True, use_call=False, use_shell=False, environ=None)
 print "Starting Redis"
 serverStart.execute()
@@ -132,22 +132,36 @@ for siteKey in siteKeys:
             if fDList:
                 datesAndFlows = convertTimes(flowDate, fDList)
                 if fD.startswith('At'):
+                    # if datePoint+1 in range (datePoints-10,datePoints):
                     yActualFlow.append(datesAndFlows[-1])
                     xActualDate.append(datesAndFlows[0])
                 else:
+                    # if datePoint+1 in range (datePoints-2,datePoints):
                     for dF in datesAndFlows[0:-1]:
                         yExpectedFlow.append(datesAndFlows[-1])
                         xExpectedDate.append(dF)
     for x in xrange(len(xExpectedDate)):
         try:
             if xExpectedDate[x] == xExpectedDate[x+1]:
-                # print xExpectedDate[x],xExpectedDate[x+1]
                 xExpectedDate[x+1] = xExpectedDate[x] + datetime.timedelta(minutes = 1)
-                
+                # print xExpectedDate[x],xExpectedDate[x+1]
         except IndexError:
             continue
-        
-                
+    dedupe = {}
+    dels = []
+    for x in xrange(len(xExpectedDate)):
+        print xExpectedDate[x],yExpectedFlow[x]
+        if dedupe.has_key(str(xExpectedDate[x])+' '+str(yExpectedFlow[x])):
+            dels.append(x)
+        else:
+            dedupe[str(xExpectedDate[x])+' '+str(yExpectedFlow[x])] = x
+    print dels
+    def delete_by_indices(indices, lst):
+        return [ lst[i] for i in xrange(len(lst)) if i not in set(indices) ]
+    xExpectedDate = delete_by_indices(dels,xExpectedDate)
+    yExpectedFlow = delete_by_indices(dels,yExpectedFlow)
+    for x in xrange(len(xExpectedDate)):
+        print xExpectedDate[x],yExpectedFlow[x]
     flowList += [Scatter(name = damName ,x = xActualDate, y = yActualFlow, fill ="tozeroy")]
     flowList += [Scatter(name = damName+'-expected' ,x = xExpectedDate, y = yExpectedFlow, fill ="none", line={"dash":"dot"})]
     
