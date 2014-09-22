@@ -9,6 +9,9 @@ install:
         - pip install plotly
         - pip install ordereddict
         - pip install simplejson
+        
+before_script:
+        - before_script
 
 script:
         - python waterline.py

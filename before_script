@@ -1,0 +1,20 @@
+#!/bin/sh
+
+set -e
+
+echo "******************"
+echo "Creating redis db."
+echo "******************"
+echo ""
+
+echo "Creating Data Directory..."
+
+sudo mkdir -p /var/lib/redis
+sudo chown redis:redis /var/lib/redis
+
+echo "Starting custom Redis Service..."
+
+cd /var/lib/redis &&
+sudo redis-server ${TRAVIS_BUILD_DIR}/redis.conf &
+
+echo "Finished setup of redis server."
