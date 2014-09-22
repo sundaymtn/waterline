@@ -10,10 +10,10 @@ from plotly.graph_objs import Data, Scatter
 import process
 import sys
 
-poll = True
+poll = False
 log = True
 plot = True
-push = True
+push = False
 
 serverStart = process.ProcessClass(exec_list=([r'redis-server', './redis.conf'],), out=True, limit_response=0, errors_expected=False,
                            return_proc=True, use_call=False, use_shell=False, environ=None)
@@ -80,7 +80,7 @@ for siteKey in siteKeys:
     
     
 def parseFlow(flowData):
-    flowMatches = [#'Until (?:(\d{1,2}:\d{1,2} (?:AM|PM)|MIDNIGHT)) (today|tomorrow). (\d\,\d{1,6}|\d{1,6})',
+    flowMatches = ['Until (?:(\d{1,2}:\d{1,2} (?:AM|PM)|MIDNIGHT)) (?:(today|tomorrow).*) (\d\,\d{1,6}|\d{1,6})',
                    'At (?:(\d{1,2}:\d{1,2} (?:AM|PM)|MIDNIGHT)) (today|tomorrow) the total flow below the dam was (\d\,\d{1,6}|\d{1,6})',
                    'From (?:(\d{1,2}:\d{1,2} (?:AM|PM)|MIDNIGHT)) (today|tomorrow) until (?:(\d{1,2}:\d{1,2} (?:AM|PM)|MIDNIGHT)) (\d\,\d{1,6}|\d{1,6})',
                    'From (?:(\d{1,2}:\d{1,2} (?:AM|PM)|MIDNIGHT)) (today|tomorrow) until (?:(\d{1,2}:\d{1,2} (?:AM|PM)|MIDNIGHT)) (?:(today|tomorrow).*) (\d\,\d{1,6}|\d{1,6})']
@@ -131,14 +131,22 @@ for siteKey in siteKeys:
                 print '\t  ' + fD
             if fDList:
                 datesAndFlows = convertTimes(flowDate, fDList)
-                if len(datesAndFlows) == 2:
+                if fD.startswith('At'):
                     yActualFlow.append(datesAndFlows[-1])
                     xActualDate.append(datesAndFlows[0])
                 else:
                     for dF in datesAndFlows[0:-1]:
                         yExpectedFlow.append(datesAndFlows[-1])
                         xExpectedDate.append(dF)
-    
+    for x in xrange(len(xExpectedDate)):
+        try:
+            if xExpectedDate[x] == xExpectedDate[x+1]:
+                # print xExpectedDate[x],xExpectedDate[x+1]
+                xExpectedDate[x+1] = xExpectedDate[x] + datetime.timedelta(minutes = 1)
+                
+        except IndexError:
+            continue
+        
     flowList += [Scatter(name = damName+'-expected' ,x = xExpectedDate, y = yExpectedFlow, fill ="none", line={"dash":"dot"})]
                 
     flowList += [Scatter(name = damName ,x = xActualDate, y = yActualFlow, fill ="tozeroy")]
