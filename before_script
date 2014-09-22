@@ -16,6 +16,6 @@ echo "Starting custom Redis Service..."
 
 cd /var/lib/redis &&
 sudo redis-cli shutdown
-sudo redis-server ${TRAVIS_BUILD_DIR}/redis.conf &
+echo sudo redis-server ${TRAVIS_BUILD_DIR}/redis.conf &
 
 echo "Finished setup of redis server."

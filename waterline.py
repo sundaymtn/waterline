@@ -15,10 +15,10 @@ log = True
 plot = True
 push = False
 
-# serverStart = process.ProcessClass(exec_list=([r'redis-server', './redis.conf'],), out=True, limit_response=0, errors_expected=False,
-#                           return_proc=True, use_call=False, use_shell=False, environ=None)
-# print "Starting Redis"
-# serverStart.execute()
+serverStart = process.ProcessClass(exec_list=([r'redis-server', './redis.conf'],), out=True, limit_response=0, errors_expected=False,
+                          return_proc=True, use_call=False, use_shell=False, environ=None)
+print "Starting Redis"
+serverStart.execute()
 
 r = redis.StrictRedis(host = 'localhost', port = 6379, db = 0)
 def set_value(redis, key, value):
@@ -158,10 +158,10 @@ if plot:
     py.sign_in('sundaymtn','kfw4lbn1wt')
     unique_url = py.plot(data, filename = riverName, auto_open=False, overwrite=True)
 
-# serverStop = process.ProcessClass(exec_list=([r'redis-cli', 'shutdown'],), out=True, limit_response=0, errors_expected=False,
-#                           return_proc=False, use_call=False, use_shell=False, environ=None)
-# print "Stopping Redis"
-# serverStop.execute()
+serverStop = process.ProcessClass(exec_list=([r'redis-cli', 'shutdown'],), out=True, limit_response=0, errors_expected=False,
+                          return_proc=False, use_call=False, use_shell=False, environ=None)
+print "Stopping Redis"
+serverStop.execute()
 
 
 addUpdatedDb = process.ProcessClass(exec_list=([r'git remote set-url origin https://sundaymtn:669288a22a7ba23a44fc088f9442deb5b299a03e@github.com/sundaymtn/waterline.git'],
