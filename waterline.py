@@ -155,13 +155,13 @@ for siteKey in siteKeys:
             dels.append(x)
         else:
             dedupe[str(xExpectedDate[x])+' '+str(yExpectedFlow[x])] = x
-    print dels
+    # print dels
     def delete_by_indices(indices, lst):
         return [ lst[i] for i in xrange(len(lst)) if i not in set(indices) ]
     xExpectedDate = delete_by_indices(dels,xExpectedDate)
     yExpectedFlow = delete_by_indices(dels,yExpectedFlow)
-    for x in xrange(len(xExpectedDate)):
-        print xExpectedDate[x],yExpectedFlow[x]
+    # for x in xrange(len(xExpectedDate)):
+    #     print xExpectedDate[x],yExpectedFlow[x]
     flowList += [Scatter(name = damName ,x = xActualDate, y = yActualFlow, fill ="tozeroy")]
     flowList += [Scatter(name = damName+'-expected' ,x = xExpectedDate, y = yExpectedFlow, fill ="none", line={"dash":"dot"})]
     
