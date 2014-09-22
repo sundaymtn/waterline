@@ -10,10 +10,10 @@ from plotly.graph_objs import Data, Scatter
 import process
 import sys
 
-poll = False
+poll = True
 log = True
 plot = True
-push = False
+push = True
 
 serverStart = process.ProcessClass(exec_list=([r'redis-server', './redis.conf'],), out=True, limit_response=0, errors_expected=False,
                            return_proc=True, use_call=False, use_shell=False, environ=None)
