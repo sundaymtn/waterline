@@ -10,10 +10,10 @@ from plotly.graph_objs import Data, Scatter
 import process
 import sys
 
-poll = False
+poll = True
 log = True
-plot = False
-push = False
+plot = True
+push = True
 
 serverStart = process.ProcessClass(exec_list=([r'redis-server', 'redis.conf'],), out=True, limit_response=0, errors_expected=False,
                           return_proc=True, use_call=False, use_shell=False, environ=None)
@@ -77,7 +77,7 @@ for siteKey in siteKeys:
             else:
                 cfs[flowDate] = [flow,]
                 
-    ageOut = datetime.datetime.now() + datetime.timedelta(days = -15)
+    ageOut = datetime.datetime.now() + datetime.timedelta(days = -5)
     for f in cfs.keys():
         if f < ageOut:
             del cfs[f]
