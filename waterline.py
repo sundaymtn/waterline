@@ -10,15 +10,16 @@ from plotly.graph_objs import Data, Scatter
 import process
 import sys
 
-poll = True
+poll = False
 log = True
-plot = True
-push = True
+plot = False
+push = False
 
 serverStart = process.ProcessClass(exec_list=([r'redis-server', 'redis.conf'],), out=True, limit_response=0, errors_expected=False,
                           return_proc=True, use_call=False, use_shell=False, environ=None)
 print "Starting Redis"
 serverStart.execute()
+time.sleep(1)
 
 r = redis.StrictRedis(host = 'localhost', port = 6379, db = 0)
 def set_value(redis, key, value):
@@ -75,9 +76,15 @@ for siteKey in siteKeys:
                     cfs[flowDate].append(flow)
             else:
                 cfs[flowDate] = [flow,]
+                
+    ageOut = datetime.datetime.now() + datetime.timedelta(days = -15)
+    for f in cfs.keys():
+        if f < ageOut:
+            del cfs[f]
+        
     set_value(r, siteKey + '-cfs', cfs)
     r.save()
-    
+
     
 def parseFlow(flowData):
     flowMatches = ['Until (?:(\d{1,2}:\d{1,2} (?:AM|PM)|MIDNIGHT)) (?:(today|tomorrow).*) (\d\,\d{1,6}|\d{1,6})',
@@ -96,10 +103,9 @@ def convertTimes(flowDate, fDList):
     fdList = [datetime.datetime.strptime(f, "%I:%M %p") if ':' in f else f for f in fdList]
     for x in xrange(len(fdList)):
         if type(fdList[x]) == datetime.datetime:
+            fdList[x] = fdList[x].replace(year=flowDate.year, month=flowDate.month, day=flowDate.day)
             if fdList[x+1]=='tomorrow':
-                fdList[x] = fdList[x].replace(year=flowDate.year, month=flowDate.month, day=flowDate.day+1)
-            else:
-                fdList[x] = fdList[x].replace(year=flowDate.year, month=flowDate.month, day=flowDate.day)
+                fdList[x] = fdList[x] + datetime.timedelta(days = 1)
     fdList = [f for f in fdList if f not in ('today','tomorrow')]
     print '\t '+str(fdList)
     return fdList
